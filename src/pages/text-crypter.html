@@ -16,15 +16,15 @@
 
 <body>
     <div class="container p-3">
-        <form id="crypt-form">
+        <form id="crypt-form" onsubmit="handleSubmit(event)">
             <div class="mb-3">
-                <label class="form-label">Text a encriptar</label>
-                <input id="text" class="form-control" type="text">
+                <label for="text" class="form-label">Text a encriptar</label>
+                <input id="text" name="text" class="form-control" type="text">
             </div>
             <div class="mb-3">
-                <label class="form-label">Clau d'encriptació</label>
+                <label for="password" class="form-label">Clau d'encriptació</label>
                 <div class="input-group">
-                    <input id="password" class="form-control" type="password">
+                    <input id="password" name="password" class="form-control" type="password">
                     <button id="eye-btn" class="btn btn-outline-secondary" type="button">
                         <i class="bi bi-eye-fill"></i>
                     </button>
@@ -58,27 +58,6 @@
         const baseUrl = "https://marc-gil.github.io/text-crypter?encrypted-text=";
         const copyBtn = document.getElementById("copy-btn");
         const eyeBtn = document.getElementById("eye-btn");
-        
-        function encryptText(text, password) {
-            const encrypted = CryptoJS.AES.encrypt(text, password);
-            return encrypted;
-        }
-
-        function decryptText(text, password) {
-            const decrypted = CryptoJS.AES.decrypt(text, password);
-            return decrypted.toString(CryptoJS.enc.Utf8);
-        }
-
-        cryptForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            // Encrypt the password using AES encryption
-            const encryptedResult = encryptText(text.value, password.value).toString();
-            const url = baseUrl + encodeURIComponent(encryptedResult);
-            encryptedLink.href = "data:text/plain;charset=utf-8," + url;
-            encryptedLink.textContent = url;
-            const hiddenDiv = document.querySelector('.card').parentNode;
-            hiddenDiv.style.display = 'block';
-        });
 
         copyBtn.addEventListener("click", function () {
             navigator.clipboard.writeText(encryptedLink.textContent);
@@ -89,6 +68,35 @@
             password.type = password.type === "password" ? "text" : "password";
             eyeBtn.blur();
         });
+
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const formValues = Object.fromEntries(formData.entries());
+            
+            encryptForm(formValues.text, formValues.password);
+        }
+
+        function encryptForm(text, password) {
+            // Encrypt the password using AES encryption
+            const encryptedResult = encryptText(text, password).toString();
+            const url = baseUrl + encodeURIComponent(encryptedResult);
+            encryptedLink.href = "data:text/plain;charset=utf-8," + url;
+            encryptedLink.textContent = url;
+            const hiddenDiv = document.querySelector('.card').parentNode;
+            hiddenDiv.style.display = 'block';
+        }
+
+        function encryptText(text, password) {
+            const encrypted = CryptoJS.AES.encrypt(text, password);
+            return encrypted;
+        }
+
+        function decryptText(text, password) {
+            const decrypted = CryptoJS.AES.decrypt(text, password);
+            return decrypted.toString(CryptoJS.enc.Utf8);
+        }
 
     </script>
 </body>
